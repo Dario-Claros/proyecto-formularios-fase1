@@ -1,7 +1,6 @@
 /* Fondo de todo el menú */
 #mi-navbar {
-  background-color: #d6a9fa; /* Cambia a tu color preferido */
-  
+  background-color: rgba(181, 151, 208, 0.63);
 }
 
 /* Color del texto del Logo/Marca */
@@ -13,34 +12,35 @@
 
 /* Color de los enlaces */
 #mi-navbar .nav-link {
-  color: #3b1850;
+  color: #2C0A3F;
+  border-radius: 15px;
   font-weight: bold;
+  margin-left: 10px;
 }
 
 /* Color al pasar el cursor sobre los enlaces */
 #mi-navbar .nav-link:hover {
-  color: #ffffff;
+  background-color: #2C0A3F;
+  color: #FFF;
 }
 
 /* Color del enlace activo */
 #mi-navbar .nav-link.active {
-  color: #3b1850;
+  color: #FFF;
+  background-color: #2C0A3F;
   font-weight: bold;
 }
 
-/* Cambiar el icono del botón hamburguesa si usas fondo oscuro */
 #mi-navbar .navbar-toggler {
   border-color: #3b1850;
 }
 
 #mi-navbar .navbar-toggler-icon {
-  /* Genera el icono hamburguesa en blanco */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-/* Cambia el color del botón cuadrado de la hamburguesa cuando está activo */
 #mi-navbar .navbar-toggler:not(.collapsed) {
-  background-color: #4c1163; /* Cambia al color que quieras para el botón */
+  background-color: #2C0A3F;
 }
 
 /* Tamaño normal para pantallas grandes */
@@ -52,33 +52,33 @@
 /* Tamaño adaptativo para celulares (pantallas menores a 768px) */
 @media (max-width: 768px) {
   #mi-navbar .navbar-brand {
-    font-size: 14px; /* Un tamaño más pequeño para que no se corte */
-    white-space: normal; /* Permite que si el texto es largo dé un salto de línea limpio */
+    font-size: 14px;
+    white-space: normal;
+    /* Permite que si el texto es largo dé un salto de línea limpio */
   }
 }
 
-#principal{
-    align-items: center;
+#principal {
+  align-items: center;
 }
 
 /* Estilos principales del Footer */
 .mi-footer {
-  background-color: #4c1163; /* Color de fondo */
-  color: #ffffff;            /* Color general del texto */
-  padding-top: 3rem;         /* Espacio superior */
-  padding-bottom: 1.5rem;    /* Espacio inferior */
+  background-color: rgba(181, 151, 208, 0.63);
+  color: #2C0A3F;
+  padding-top: 3rem;
+  padding-bottom: 1.5rem;
 }
 
-/* Estilo para los títulos (H5, H6) */
-.mi-footer h5, 
+.mi-footer h5,
 .mi-footer h6 {
-  color: #ffffff;
+  color: #2C0A3F;
   font-weight: 600;
 }
 
 /* Estilo para los enlaces del menú */
 .mi-footer a {
-  color: #a0a0a0;
+  color: #2C0A3F;
   text-decoration: none;
   transition: color 0.3s ease;
 }
@@ -88,24 +88,21 @@
   color: #ffffff;
 }
 
-/* Texto secundario / Copyright */
 .mi-footer .text-secondary {
   color: #a0a0a0 !important;
 }
 
-/* Estilo del botón (solo colores y forma) */
 button.btn-crear#btnC {
-  background-color: #230836;  /* Fondo morado oscuro de la imagen */
-  color: #e2e2e2;             /* Texto gris/blanco claro */
+  background-color: #230836;
+  color: #e2e2e2;
   border: none;
-  border-radius: 12px;        /* Bordes redondeados */
+  border-radius: 12px;
   padding: 10px 16px;
-  font-weight: 700;           /* Texto en negrita */
+  font-weight: 700;
   font-size: 0.95rem;
   transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
-/* Efectos al pasar el cursor y hacer clic */
 button.btn-crear#btnC:hover {
   opacity: 0.9;
 }
@@ -119,7 +116,7 @@ button.btn-crear#btnC:active {
 /* Título y etiquetas */
 .titulo-formulario,
 .formulario-contacto .form-label {
-  color: #230836;            /* Tono morado oscuro */
+  color: #230836;
   font-weight: 700;
 }
 
@@ -130,9 +127,9 @@ button.btn-crear#btnC:active {
 
 /* Estilo para los Inputs y Textarea */
 .campo-personalizado {
-  background-color: #fbe9ff !important; /* Gris claro de la imagen */
+  background-color: #fbe9ff !important;
   border: none !important;
-  border-radius: 12px !important; /* Bordes redondeados */
+  border-radius: 12px !important;
   padding: 10px 14px;
 }
 
@@ -141,13 +138,12 @@ button.btn-crear#btnC:active {
   box-shadow: none !important;
 }
 
-/* Botón Enviar con tono morado e ícono */
 .btn-enviar {
-  background-color: #230836;  /* Fondo morado oscuro */
-  color: #ffffff; /* Texto blanco */
+  background-color: #230836;
+  color: #ffffff;
   border: none;
-  border-radius: 12px; /* Bordes redondeados */
-  padding: 10px 28px;
+  border-radius: 12px;
+  padding: 10px 18px;
   font-weight: 700;
   font-size: 1rem;
   display: inline-flex;
@@ -160,18 +156,16 @@ button.btn-crear#btnC:active {
   opacity: 0.9;
 }
 
-.aColor{
-    color: #e2e8f0 !important;
+.aColor {
+  color: #e2e8f0 !important;
 }
 
 
 /*-------------------------------------------------------------CREAR FORMS---------------------------------------------------*/
 /*---------------------------------------------------------------------------------------------------------------------------*/
 
-/* Fondo general del área de creación (Tono morado pastel) */
-.contenedor-builder {
-  background-color: #c4b5fd;
-}
+#menuOpciones{
+  background-color: rgba(181, 151, 208, 0.63);}
 
 /* Botón de la pestaña activa */
 .btn-pestana-activa {
@@ -194,7 +188,29 @@ button.btn-crear#btnC:active {
   background-color: #e2e8f0;
   transform: translateX(3px);
 }
+#imagenFooter{
+  width: 200px;
+  height: 200px;
+}
 
-/*-------------------------------------------------------------PARTE DE BTN CONTACTANOS---------------------------------------------------*/
-/*---------------------------------------------------------------------------------------------------------------------------*/
-
+.diseño_form{
+  background-color: #B2B2B2;
+  width: 400px;
+  height: 200px;
+}
+#verMas{
+  color: #2C0A3F;
+}
+.add-forms{
+  margin-top: 2rem;
+  width: 180px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: #2C0A3F;
+  color: #fff;
+}
+.add-forms a{
+  color: #fff;
+  font-style: none;
+  text-decoration: none;
+}

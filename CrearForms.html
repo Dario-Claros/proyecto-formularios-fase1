@@ -1,141 +1,170 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menú Hamburguesa Bootstrap</title>
-  
-  <!-- 1. PRIMERO: CSS de Bootstrap 5.3.3 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-  <!-- 2. DESPUÉS: Tu CSS personalizado (para que tus estilos tengan prioridad) -->
-  <link rel="stylesheet" href="css/estilo.css">
-</head>
-<body class="d-flex flex-column min-vh-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- Titulo de la pagina-->
+    <title>Construcción de formularios</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/estilo.css" />
+  </head>
+  <body class="d-flex flex-column min-vh-100">
+    <!-- Menu de Navegación -->
+    <nav id="mi-navbar" class="navbar navbar-expand-lg">
+      <div class="container">
+        <a class="navbar-brand" href="#">CONSTRUCCIÓN DE FORMULARIOS</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuNavegacion"
+          aria-controls="menuNavegacion"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-   <!-- Navegación con tu ID personalizado -->
-  <nav id="mi-navbar" class="navbar navbar-expand-lg">
-    <div class="container">
-      
-      <!-- Logo o Nombre de Marca -->
-      <a class="navbar-brand" href="#">CONSTRUCCIÓN DE FORMULARIOS</a>
-
-      <!-- Botón Hamburguesa -->
-      <button 
-        class="navbar-toggler" 
-        type="button" 
-        data-bs-toggle="collapse" 
-        data-bs-target="#menuNavegacion" 
-        aria-controls="menuNavegacion" 
-        aria-expanded="false" 
-        aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <!-- Menú Desplegable -->
-      <div class="collapse navbar-collapse" id="menuNavegacion">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" href="inicio.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="Desarrolladores.html">Desarrolladores</a></li>
-          <li class="nav-item"><a class="nav-link" href="Contactanos.html">Contáctanos</a></li>
-          <li class="nav-item"><a class="nav-link" href="Configuracion.html">Configuración</a></li>
-          
-          <li class="nav-item"><a class="nav-link" href="CrearForms.html">Crear formulario</a></li>
-        </ul>
-      </div>
-
-    </div>
-  </nav>
-
-  <section class="principal flex-grow-1">
-   <div class="container-fluid p-0 contenedor-builder my-4">
-  <div class="row g-0 min-vh-100">
-    
-    <!-- PANEL LATERAL IZQUIERDO (Herramientas) -->
-    <div class="col-12 col-md-3 p-3">
-      <div class="panel-herramientas bg-secondary-subtle rounded-4 p-3 h-100 d-flex flex-column gap-3 shadow-sm">
-        
-        <!-- Pestañas Superiores (Herramientas / Opciones) -->
-        <div class="d-flex bg-secondary-subtle rounded-pill p-1 border">
-          <button class="btn btn-sm btn-pestana-activa rounded-pill fw-bold w-50">Herramientas</button>
-          <button class="btn btn-sm rounded-pill text-dark fw-semibold w-50">Opciones</button>
+        <!-- Menú Desplegable -->
+        <div class="collapse navbar-collapse" id="menuNavegacion">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Desarrolladores.html"
+                >Desarrolladores</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Contactanos.html">Contáctanos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Configuracion.html">Configuración</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="Formularios.html"
+                >Formularios</a
+              >
+            </li>
+          </ul>
         </div>
-
-        <!-- Lista de Botones / Herramientas -->
-        <div class="d-flex flex-column gap-2 mt-2">
-          <button class="btn btn-herramienta text-start py-2 px-3">Título</button>
-          <button class="btn btn-herramienta text-start py-2 px-3">Texto</button>
-          <button class="btn btn-herramienta text-start py-2 px-3">Cuadro de texto</button>
-          <button class="btn btn-herramienta text-start py-2 px-3">Área de Texto</button>
-          <button class="btn btn-herramienta text-start py-2 px-3">Desplegable</button>
-          <button class="btn btn-herramienta text-start py-2 px-3">Botón de Radio</button>
-          <button class="btn btn-herramienta text-start py-2 px-3">Imagen</button>
-          <button class="btn btn-herramienta text-start py-2 px-3">Botón de enviar</button>
-          <button class="btn btn-herramienta text-start py-2 px-3">Cargar archivos</button>
-        </div>
-
       </div>
-    </div>
+    </nav>
+    <!-- Seccion del contenido principal de la pagina -->
+    <section class="principal flex-grow-1">
+      <div class="container-fluid p-0 contenedor-builder">
+        <div class="row g-0 min-vh-100">
+          <!-- Panel lateral izquierdo (Herramientas) -->
+          <div class="col-12 col-md-3 p-3" id="menuOpciones">
+            <div class="d-flex p-1 py-4">
+              <button class="btn btn-sm btn-pestana-activa fw-bold w-50">
+                Herramientas
+              </button>
+              <button class="btn btn-sm text-dark bg-secondary-subtle fw-semibold w-50">
+                Opciones
+              </button>
+            </div>
+            <div
+              class="panel-herramientas bg-secondary-subtle rounded-4 p-3 d-flex flex-column gap-3 shadow-sm"
+            >
+              <!-- Lista de Botones / Herramientas -->
+              <div class="d-flex flex-column gap-2 mt-2">
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Título
+                </button>
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Texto
+                </button>
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Cuadro de texto
+                </button>
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Área de Texto
+                </button>
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Desplegable
+                </button>
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Botón de Radio
+                </button>
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Imagen
+                </button>
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Botón de enviar
+                </button>
+                <button class="btn btn-herramienta text-start py-2 px-3">
+                  Cargar archivos
+                </button>
+              </div>
+            </div>
+          </div>
 
-    <!-- LIENZO PRINCIPAL DERECHO (Área de trabajo) -->
-    <div class="col-12 col-md-9 p-3">
-      <div class="bg-secondary-subtle rounded-4 h-100 p-4 border shadow-sm">
-        <!-- Espacio en blanco para construir el formulario -->
-      </div>
-    </div>
+          <!-- Seccion vacia (Área de trabajo) -->
+          <div class="col-12 col-md-9 p-3">
 
-  </div>
-</div>
-  </section>
-
-  <!-- ========== FOOTER LIBRE DE CLASES RESTRICTIVAS ========== -->
-  <footer class="mi-footer mt-auto">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-12 col-md-4">
-          <h5 class="fw-bold mb-3">Artext</h5>
-          <p class="small">Plataforma para explorar, conectar y crear contenido de forma visual y dinámica.</p>
-          <div class="d-flex gap-3">
-            <a href="#"><i class="bi bi-instagram fs-5"></i></a>
-            <a href="#"><i class="bi bi-twitter-x fs-5"></i></a>
-            <a href="#"><i class="bi bi-github fs-5"></i></a>
           </div>
         </div>
-        <div class="col-6 col-md-2">
-          <h6 class="text-uppercase fw-semibold mb-3">Explorar</h6>
-          <ul class="list-unstyled mb-0">
-            <li class="mb-2"><a href="inicio.html">Inicio</a></li>
-            <li class="mb-2"><a href="#">Feed Masonry</a></li>
-            <li class="mb-2"><a href="#">Tendencias</a></li>
-            <li class="mb-2"><a href="#">Creadores</a></li>
-          </ul>
-        </div>
-        <div class="col-6 col-md-2">
-          <h6 class="text-uppercase fw-semibold mb-3">Soporte</h6>
-          <ul class="list-unstyled mb-0">
-            <li class="mb-2"><a href="#">Ayuda</a></li>
-            <li class="mb-2"><a href="#">Privacidad</a></li>
-            <li class="mb-2"><a href="#">Términos</a></li>
-            <li class="mb-2"><a href="#">Contacto</a></li>
-          </ul>
-        </div>
-        <div class="col-12 col-md-4">
-          <img src="img/image-Photoroom (3).png" alt="Logo Artext">
-        </div>
       </div>
-      <div class="row align-items-center mt-4">
-        <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-          <p class="small mb-0">&copy; 2026 Artext. Todos los derechos reservados.</p>
-        </div>
-        <div class="col-md-6 text-center text-md-end">
-          <a href="#" class="small me-3">Privacidad</a>
-          <a href="#" class="small">Cookies</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+    </section>
 
-  <!-- JS de Bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <!-- ========== Pie de pagina ========== -->
+    <footer class="mi-footer mt-auto">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-12 col-md-4">
+            <h5 class="fw-bold mb-3">UDB</h5>
+            <p class="small">
+              Plataforma Diseñada para la creación y estructura dinámica de
+              formularios.
+            </p>
+            <div class="d-flex gap-3">
+              <a href="#"><i class="bi bi-instagram fs-5"></i></a>
+              <a href="#"><i class="bi bi-twitter-x fs-5"></i></a>
+              <a href="#"><i class="bi bi-github fs-5"></i></a>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <h6 class="text-uppercase fw-semibold mb-3">Explorar</h6>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2"><a href="#">Inicio</a></li>
+              <li class="mb-2"><a href="#">Feed Masonry</a></li>
+              <li class="mb-2"><a href="#">Tendencias</a></li>
+              <li class="mb-2"><a href="#">Creadores</a></li>
+            </ul>
+          </div>
+          <div class="col-6 col-md-2">
+            <h6 class="text-uppercase fw-semibold mb-3">Soporte</h6>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2"><a href="#">Ayuda</a></li>
+              <li class="mb-2"><a href="#">Privacidad</a></li>
+              <li class="mb-2"><a href="#">Términos</a></li>
+              <li class="mb-2"><a href="#">Contacto</a></li>
+            </ul>
+          </div>
+          <div class="col-12 col-md-4">
+            <img src="img/Logo_UDB.png" alt="Logo_UDB" id="imagenFooter" />
+          </div>
+        </div>
+        <div class="row align-items-center mt-4">
+          <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+            <p class="small mb-0">
+              &copy; 2026 UDB. Todos los derechos reservados.
+            </p>
+          </div>
+          <div class="col-md-6 text-center text-md-end">
+            <a href="#" class="small me-3">Privacidad</a>
+            <a href="#" class="small">Cookies</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JS de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
