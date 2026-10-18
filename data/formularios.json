@@ -1,0 +1,333 @@
+{
+  "_comentario": "arreglo prinsipal con todas las platillas de fomularios predeteminados",
+  "formulariosPredeterminados": [
+    {
+      "_comentario": "platilla 1: fomulario de contacto con texto, correo, desplegable y area de texto",
+      "id": "contacto",
+      "nombre": "Formulario de Contacto",
+      "categoria": "General",
+      "descripcion": "Formulario basico para recibir dudas o mensajes de los usuarios.",
+      "icono": "bi-envelope",
+      "campos": [
+        {
+          "_comentario": "cada objeto dentro de campos representa una heramienta del panel",
+          "id": "c1",
+          "tipo": "titulo",
+          "texto": "Contactanos"
+        },
+        {
+          "id": "c2",
+          "tipo": "texto",
+          "texto": "Llena los campos para enviarnos tu consulta."
+        },
+        {
+          "id": "c3",
+          "tipo": "cuadroTexto",
+          "subtipo": "text",
+          "etiqueta": "Nombre",
+          "placeholder": "Ingresa tu nombre",
+          "requerido": true
+        },
+        {
+          "id": "c4",
+          "tipo": "cuadroTexto",
+          "subtipo": "email",
+          "etiqueta": "Correo Electronico",
+          "placeholder": "correo@ejemplo.com",
+          "requerido": true
+        },
+        {
+          "id": "c5",
+          "tipo": "desplegable",
+          "etiqueta": "Motivo",
+          "opciones": ["Consulta", "Soporte", "Sugerencia", "Otro"],
+          "requerido": true
+        },
+        {
+          "id": "c6",
+          "tipo": "areaTexto",
+          "etiqueta": "Mensaje",
+          "placeholder": "Escribe tu mensaje aqui...",
+          "filas": 4,
+          "requerido": true
+        },
+        {
+          "id": "c7",
+          "tipo": "botonEnviar",
+          "texto": "Enviar"
+        }
+      ]
+    },
+    {
+      "_comentario": "platilla 2: registro de usuario con contraseña, fecha y botones de radio",
+      "id": "registro",
+      "nombre": "Registro de Usuario",
+      "categoria": "Cuentas",
+      "descripcion": "Formulario para crear una cuenta nueva con datos personales.",
+      "icono": "bi-person-plus",
+      "campos": [
+        {
+          "id": "r1",
+          "tipo": "titulo",
+          "texto": "Registro de usuario"
+        },
+        {
+          "id": "r2",
+          "tipo": "texto",
+          "texto": "Completa tus datos para registrarte."
+        },
+        {
+          "id": "r3",
+          "tipo": "cuadroTexto",
+          "subtipo": "text",
+          "etiqueta": "Nombre completo",
+          "placeholder": "Ingresa tu nombre completo",
+          "requerido": true
+        },
+        {
+          "id": "r4",
+          "tipo": "cuadroTexto",
+          "subtipo": "email",
+          "etiqueta": "Correo Electronico",
+          "placeholder": "usuario@correo.com",
+          "requerido": true
+        },
+        {
+          "id": "r5",
+          "tipo": "cuadroTexto",
+          "subtipo": "password",
+          "etiqueta": "Contraseña",
+          "placeholder": "Minimo 8 caracteres",
+          "requerido": true
+        },
+        {
+          "id": "r6",
+          "tipo": "cuadroTexto",
+          "subtipo": "date",
+          "etiqueta": "Fecha de nacimiento",
+          "requerido": true
+        },
+        {
+          "id": "r7",
+          "tipo": "radio",
+          "etiqueta": "Genero",
+          "opciones": ["Femenino", "Masculino", "Otro"],
+          "requerido": true
+        },
+        {
+          "id": "r8",
+          "tipo": "botonEnviar",
+          "texto": "Registrarse"
+        }
+      ]
+    },
+    {
+      "_comentario": "platilla 3: inicio de sesion con correo y contraseña",
+      "id": "login",
+      "nombre": "Inicio de Sesion",
+      "categoria": "Cuentas",
+      "descripcion": "Formulario corto para entrar con correo y contraseña.",
+      "icono": "bi-box-arrow-in-right",
+      "campos": [
+        {
+          "id": "l1",
+          "tipo": "titulo",
+          "texto": "Iniciar sesion"
+        },
+        {
+          "id": "l2",
+          "tipo": "texto",
+          "texto": "Ingresa tus datos para entrar a tu cuenta."
+        },
+        {
+          "id": "l3",
+          "tipo": "cuadroTexto",
+          "subtipo": "email",
+          "etiqueta": "Correo Electronico",
+          "placeholder": "correo@ejemplo.com",
+          "requerido": true
+        },
+        {
+          "id": "l4",
+          "tipo": "cuadroTexto",
+          "subtipo": "password",
+          "etiqueta": "Contraseña",
+          "placeholder": "Ingresa tu contraseña",
+          "requerido": true
+        },
+        {
+          "id": "l5",
+          "tipo": "botonEnviar",
+          "texto": "Entrar"
+        }
+      ]
+    },
+    {
+      "_comentario": "platilla 4: encuesta con lista desplegable, radio y comentarios",
+      "id": "encuesta",
+      "nombre": "Encuesta de Satisfaccion",
+      "categoria": "Encuestas",
+      "descripcion": "Encuesta para conocer la opinion de los usuarios sobre el servicio.",
+      "icono": "bi-clipboard-check",
+      "campos": [
+        {
+          "id": "e1",
+          "tipo": "titulo",
+          "texto": "Encuesta de satisfaccion"
+        },
+        {
+          "id": "e2",
+          "tipo": "texto",
+          "texto": "Responde estas preguntas para ayudarnos a mejorar."
+        },
+        {
+          "id": "e3",
+          "tipo": "desplegable",
+          "etiqueta": "Area que deseas evaluar",
+          "opciones": ["Atencion al cliente", "Pagina web", "Soporte", "Otro"],
+          "requerido": true
+        },
+        {
+          "id": "e4",
+          "tipo": "radio",
+          "etiqueta": "Como calificas el servicio",
+          "opciones": ["Excelente", "Bueno", "Regular", "Malo"],
+          "requerido": true
+        },
+        {
+          "id": "e5",
+          "tipo": "areaTexto",
+          "etiqueta": "Comentarios adicionales",
+          "placeholder": "Escribe algun comentario...",
+          "filas": 3,
+          "requerido": false
+        },
+        {
+          "id": "e6",
+          "tipo": "botonEnviar",
+          "texto": "Enviar encuesta"
+        }
+      ]
+    },
+    {
+      "_comentario": "platilla 5: inscripcion a evento que incluye la heramienta de imagen",
+      "id": "evento",
+      "nombre": "Inscripcion a Evento",
+      "categoria": "Educacion",
+      "descripcion": "Formulario para inscribirse a talleres o charlas de la universidad.",
+      "icono": "bi-calendar-event",
+      "campos": [
+        {
+          "id": "ev1",
+          "tipo": "imagen",
+          "src": "img/Logo_UDB.png",
+          "alt": "Logo UDB",
+          "ancho": "110px"
+        },
+        {
+          "id": "ev2",
+          "tipo": "titulo",
+          "texto": "Inscripcion al taller"
+        },
+        {
+          "id": "ev3",
+          "tipo": "cuadroTexto",
+          "subtipo": "text",
+          "etiqueta": "Nombre del estudiante",
+          "placeholder": "Ingresa tu nombre",
+          "requerido": true
+        },
+        {
+          "id": "ev4",
+          "tipo": "cuadroTexto",
+          "subtipo": "email",
+          "etiqueta": "Correo institucional",
+          "placeholder": "alumno@udb.edu.sv",
+          "requerido": true
+        },
+        {
+          "id": "ev5",
+          "tipo": "cuadroTexto",
+          "subtipo": "date",
+          "etiqueta": "Fecha de asistencia",
+          "requerido": true
+        },
+        {
+          "id": "ev6",
+          "tipo": "radio",
+          "etiqueta": "Modalidad",
+          "opciones": ["Presencial", "Virtual"],
+          "requerido": true
+        },
+        {
+          "id": "ev7",
+          "tipo": "botonEnviar",
+          "texto": "Inscribirse"
+        }
+      ]
+    },
+    {
+      "_comentario": "platilla 6: solicitud de empleo que usa campo numerico y subida de archivos",
+      "id": "empleo",
+      "nombre": "Solicitud de Empleo",
+      "categoria": "Trabajo",
+      "descripcion": "Formulario para aplicar a un puesto y subir el curriculum.",
+      "icono": "bi-briefcase",
+      "campos": [
+        {
+          "id": "em1",
+          "tipo": "titulo",
+          "texto": "Solicitud de empleo"
+        },
+        {
+          "id": "em2",
+          "tipo": "texto",
+          "texto": "Ingresa tus datos y sube tu hoja de vida."
+        },
+        {
+          "id": "em3",
+          "tipo": "cuadroTexto",
+          "subtipo": "text",
+          "etiqueta": "Nombre completo",
+          "placeholder": "Ingresa tu nombre",
+          "requerido": true
+        },
+        {
+          "id": "em4",
+          "tipo": "cuadroTexto",
+          "subtipo": "email",
+          "etiqueta": "Correo Electronico",
+          "placeholder": "correo@ejemplo.com",
+          "requerido": true
+        },
+        {
+          "id": "em5",
+          "tipo": "desplegable",
+          "etiqueta": "Puesto al que aplica",
+          "opciones": ["Programador Web", "Diseñador", "Soporte Tecnico"],
+          "requerido": true
+        },
+        {
+          "id": "em6",
+          "tipo": "cuadroTexto",
+          "subtipo": "number",
+          "etiqueta": "Años de experiencia",
+          "placeholder": "0",
+          "requerido": true
+        },
+        {
+          "id": "em7",
+          "tipo": "archivo",
+          "etiqueta": "Subir CV (PDF)",
+          "aceptar": ".pdf",
+          "requerido": true
+        },
+        {
+          "id": "em8",
+          "tipo": "botonEnviar",
+          "texto": "Enviar solicitud"
+        }
+      ]
+    }
+  ]
+}

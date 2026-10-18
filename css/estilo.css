@@ -1,4 +1,4 @@
-/* Fondo de todo el menú */
+/* Fondo de todo el menu */
 #mi-navbar {
   background-color: rgba(181, 151, 208, 0.63);
 }
@@ -10,7 +10,7 @@
   font-weight: bold;
 }
 
-/* Color de los enlaces */
+/* Color de los enlases */
 #mi-navbar .nav-link {
   color: #2C0A3F;
   border-radius: 15px;
@@ -18,13 +18,13 @@
   margin-left: 10px;
 }
 
-/* Color al pasar el cursor sobre los enlaces */
+/* Color al pasar el cursor sobre los enlases */
 #mi-navbar .nav-link:hover {
   background-color: #2C0A3F;
   color: #FFF;
 }
 
-/* Color del enlace activo */
+/* Color del enlase activo */
 #mi-navbar .nav-link.active {
   color: #FFF;
   background-color: #2C0A3F;
@@ -49,12 +49,12 @@
   font-weight: bold;
 }
 
-/* Tamaño adaptativo para celulares (pantallas menores a 768px) */
+/* Tamaño adapativo para celulares (pantallas menores a 768px) */
 @media (max-width: 768px) {
   #mi-navbar .navbar-brand {
     font-size: 14px;
     white-space: normal;
-    /* Permite que si el texto es largo dé un salto de línea limpio */
+    /* Permite que si el texto es largo de un salto de linea limpio */
   }
 }
 
@@ -62,7 +62,7 @@
   align-items: center;
 }
 
-/* Estilos principales del Footer */
+/* Estilos prinsipales del Footer */
 .mi-footer {
   background-color: rgba(181, 151, 208, 0.63);
   color: #2C0A3F;
@@ -76,14 +76,14 @@
   font-weight: 600;
 }
 
-/* Estilo para los enlaces del menú */
+/* Estilo para los enlaces del menu */
 .mi-footer a {
   color: #2C0A3F;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
-/* Efecto al pasar el mouse sobre los enlaces */
+/* Efecto al pasar el mouse sobre los enlases */
 .mi-footer a:hover {
   color: #ffffff;
 }
@@ -113,7 +113,7 @@ button.btn-crear#btnC:active {
 
 
 /*PARTE DEL FORM*/
-/* Título y etiquetas */
+/* Titulo y etiquetas */
 .titulo-formulario,
 .formulario-contacto .form-label {
   color: #230836;
@@ -167,13 +167,13 @@ button.btn-crear#btnC:active {
 #menuOpciones{
   background-color: rgba(181, 151, 208, 0.63);}
 
-/* Botón de la pestaña activa */
+/* Boton de la pestaña activa */
 .btn-pestana-activa {
   background-color: #230836;
   color: #ffffff;
 }
 
-/* Botones laterales de herramientas */
+/* Botones laterales de heramientas */
 .btn-herramienta {
   background-color: #f8f9fa;
   color: #000000;
@@ -183,7 +183,7 @@ button.btn-crear#btnC:active {
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-/* Efecto al pasar el cursor por las herramientas */
+/* Efecto al pasar el cursor por las heramientas */
 .btn-herramienta:hover {
   background-color: #e2e8f0;
   transform: translateX(3px);
@@ -213,4 +213,64 @@ button.btn-crear#btnC:active {
   color: #fff;
   font-style: none;
   text-decoration: none;
+}
+
+/*-------------------------------------------------------------PLANTILLAS---------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------------------------------*/
+
+/* Tarjetas de los fomularios predeteminados */
+.tarjeta-plantilla {
+  border: none;
+  border-radius: 16px;
+  background-color: #fbe9ff;
+  transition: transform 0.15s ease;
+}
+
+.tarjeta-plantilla:hover {
+  transform: translateY(-4px);
+}
+
+/* Icono de cada platilla */
+.icono-plantilla {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #2C0A3F;
+  color: #ffffff;
+  font-size: 1.4rem;
+}
+
+.etiqueta-categoria {
+  background-color: rgba(181, 151, 208, 0.63);
+  color: #2C0A3F;
+  font-weight: 600;
+}
+
+/* Botones de las platillas */
+.btn-plantilla {
+  background-color: #2C0A3F;
+  color: #ffffff;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.btn-plantilla:hover {
+  background-color: #4c1163;
+  color: #ffffff;
+}
+
+.btn-plantilla-borde {
+  border: 2px solid #2C0A3F;
+  color: #2C0A3F;
+  border-radius: 10px;
+  font-weight: 600;
+  background-color: transparent;
+}
+
+.btn-plantilla-borde:hover {
+  background-color: #2C0A3F;
+  color: #ffffff;
 }
