@@ -276,6 +276,31 @@ function verVistaPrevia(idFormulario) {
   modal.show();
 }
 
+// funcion auxiliar para selecionar un campo cargado de platilla y actualizar el panel de opciones
+function seleccionarElementoDePlantilla(wrapper) {
+  document.querySelectorAll(".elemento-form.seleccionado").forEach((elemento) => {
+    elemento.classList.remove("seleccionado");
+  });
+
+  if (wrapper) {
+    wrapper.classList.add("seleccionado");
+    document.dispatchEvent(
+      new CustomEvent("elementoSeleccionado", {
+        detail: {
+          wrapper,
+          tipo: wrapper.dataset.tipo,
+        },
+      })
+    );
+  } else {
+    document.dispatchEvent(
+      new CustomEvent("elementoSeleccionado", {
+        detail: { wrapper: null, tipo: null },
+      })
+    );
+  }
+}
+
 // crear cada bloque editable dentro de #formGenerado usando la misma estructura de forms.js
 function agregarCampoDePlantillaAlLienzo(campo) {
   const formGenerado = document.getElementById("formGenerado");
@@ -289,10 +314,12 @@ function agregarCampoDePlantillaAlLienzo(campo) {
   const wrapper = document.createElement("div");
   wrapper.className = "col-12 p-2 position-relative elemento-form";
   wrapper.dataset.id = campo.id;
+  wrapper.dataset.tipo = campo.tipo;
 
   const cajaInterna = document.createElement("div");
   cajaInterna.className = "p-3 border rounded bg-light h-100 position-relative";
 
+  let requeridoAttr = campo.requerido ? "required" : "";
   let htmlContenido = "";
 
   if (campo.tipo === "titulo") {
@@ -302,12 +329,12 @@ function agregarCampoDePlantillaAlLienzo(campo) {
   } else if (campo.tipo === "input" || campo.tipo === "cuadroTexto") {
     htmlContenido = `
       <label class="form-label fw-semibold" contenteditable="true">${campo.etiqueta}</label>
-      <input type="${campo.subtipo || "text"}" class="form-control" placeholder="${campo.placeholder || ""}" />
+      <input type="${campo.subtipo || "text"}" class="form-control" placeholder="${campo.placeholder || ""}" ${requeridoAttr} />
     `;
   } else if (campo.tipo === "textarea" || campo.tipo === "areaTexto") {
     htmlContenido = `
       <label class="form-label fw-semibold" contenteditable="true">${campo.etiqueta}</label>
-      <textarea class="form-control" rows="${campo.filas || 3}" placeholder="${campo.placeholder || ""}"></textarea>
+      <textarea class="form-control" rows="${campo.filas || 3}" placeholder="${campo.placeholder || ""}" ${requeridoAttr}></textarea>
     `;
   } else if (campo.tipo === "select" || campo.tipo === "desplegable") {
     let opciones = "";
@@ -316,14 +343,15 @@ function agregarCampoDePlantillaAlLienzo(campo) {
     });
     htmlContenido = `
       <label class="form-label fw-semibold" contenteditable="true">${campo.etiqueta}</label>
-      <select class="form-select">${opciones}</select>
+      <select class="form-select" ${requeridoAttr}>${opciones}</select>
     `;
   } else if (campo.tipo === "radio") {
     let radios = "";
-    campo.opciones.forEach((op) => {
+    campo.opciones.forEach((op, indice) => {
+      let reqRadio = campo.requerido && indice === 0 ? "required" : "";
       radios += `
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="${campo.id}">
+          <input class="form-check-input" type="radio" name="${campo.id}" ${reqRadio}>
           <label class="form-check-label" contenteditable="true">${op}</label>
         </div>`;
     });
@@ -334,23 +362,23 @@ function agregarCampoDePlantillaAlLienzo(campo) {
   } else if (campo.tipo === "file" || campo.tipo === "archivo") {
     htmlContenido = `
       <label class="form-label fw-semibold" contenteditable="true">${campo.etiqueta}</label>
-      <input type="file" class="form-control" />
+      <input type="file" class="form-control" accept="${campo.aceptar || ""}" ${requeridoAttr} />
     `;
   } else if (campo.tipo === "submit" || campo.tipo === "botonEnviar") {
     htmlContenido = `
-      <button type="submit" class="btn btn-primary w-100 h-10">${campo.texto}</button>
+      <button type="submit" class="btn btn-primary w-100">${campo.texto}</button>
     `;
   }
 
   // misma barra de controles de ancho (100%, 50%, 33%) y boton eliminar que usa forms.js
   const barraControles = `
     <div class="position-absolute top-0 end-0 m-2 d-flex gap-1 align-items-center controles-elemento" style="z-index: 10;">
-      <div class="btn-group btn-group-sm" role="group" aria-label="Ancho de columna">
-        <button type="button" class="btn btn-outline-secondary btn-ancho active btn-secondary" data-col="col-12">100%</button>
+      <div class="btn-group btn-group-sm" role="group" aria-label="Ancho del elemento">
+        <button type="button" class="btn btn-secondary btn-ancho active" data-col="col-12">100%</button>
         <button type="button" class="btn btn-outline-secondary btn-ancho" data-col="col-md-6">50%</button>
         <button type="button" class="btn btn-outline-secondary btn-ancho" data-col="col-md-4">33%</button>
       </div>
-      <button type="button" class="btn btn-danger btn-sm btn-eliminar" aria-label="Eliminar">&times;</button>
+      <button type="button" class="btn btn-danger btn-sm btn-eliminar" aria-label="Eliminar elemento" title="Eliminar">&times;</button>
     </div>
   `;
 
@@ -358,28 +386,43 @@ function agregarCampoDePlantillaAlLienzo(campo) {
   wrapper.appendChild(cajaInterna);
   formGenerado.appendChild(wrapper);
 
+  // selecionar el elemento al hacer clic sobre el para mostar sus opciones
+  wrapper.addEventListener("click", (e) => {
+    if (e.target.closest(".controles-elemento")) return;
+    seleccionarElementoDePlantilla(wrapper);
+  });
+
   // eventos para cambiar el ancho del campo
-  wrapper.querySelectorAll(".btn-ancho").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      const nuevaCol = e.currentTarget.getAttribute("data-col");
-      wrapper.className = wrapper.className.replace(/\bcol-\S+/g, "").trim();
-      wrapper.classList.add(nuevaCol, "p-2", "position-relative", "elemento-form");
+  wrapper.querySelectorAll(".btn-ancho").forEach((boton) => {
+    boton.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      const nuevaCol = boton.dataset.col;
+      wrapper.classList.remove("col-12", "col-md-6", "col-md-4");
+      wrapper.classList.add(nuevaCol);
 
       wrapper.querySelectorAll(".btn-ancho").forEach((b) => {
         b.classList.remove("active", "btn-secondary");
         b.classList.add("btn-outline-secondary");
       });
-      e.currentTarget.classList.add("active", "btn-secondary");
-      e.currentTarget.classList.remove("btn-outline-secondary");
+      boton.classList.add("active", "btn-secondary");
+      boton.classList.remove("btn-outline-secondary");
+      seleccionarElementoDePlantilla(wrapper);
     });
   });
 
   // evento para eliminar el campo
-  wrapper.querySelector(".btn-eliminar").addEventListener("click", () => {
+  wrapper.querySelector(".btn-eliminar").addEventListener("click", (e) => {
+    e.stopPropagation();
+
+    const estabaSeleccionado = wrapper.classList.contains("seleccionado");
     wrapper.remove();
+
     if (formGenerado.children.length === 0 && mensajeVacio) {
       mensajeVacio.style.display = "block";
     }
+
+    if (estabaSeleccionado) seleccionarElementoDePlantilla(null);
   });
 }
 
@@ -431,6 +474,7 @@ function cargarCamposEnLienzo(plantilla) {
   if (!formGenerado) return;
 
   formGenerado.innerHTML = "";
+  seleccionarElementoDePlantilla(null);
 
   if (!plantilla) {
     if (mensajeVacio) mensajeVacio.style.display = "block";
@@ -440,6 +484,12 @@ function cargarCamposEnLienzo(plantilla) {
   plantilla.campos.forEach((campo) => {
     agregarCampoDePlantillaAlLienzo(campo);
   });
+
+  // selecionar el primer elemento de la platilla para que ya aparesca en opciones
+  const primerElemento = formGenerado.querySelector(".elemento-form");
+  if (primerElemento) {
+    seleccionarElementoDePlantilla(primerElemento);
+  }
 }
 
 // cambiar de platilla desde el select en CrearForms
@@ -462,8 +512,569 @@ function limpiarAreaTrabajo() {
   cargarCamposEnLienzo(null);
 }
 
-// iniciar todo cuando cargue la pagina
+// =========================================================
+// PANEL DE OPCIONES DE LAS HERAMIENTAS Y CARGA INICIAL
+// =========================================================
+
 document.addEventListener("DOMContentLoaded", async () => {
+  // configurar primero las pestanas de heramientas y opciones si existen en la pagina
+  const tabHerramientas = document.getElementById("tabHerramientas");
+  const tabOpciones = document.getElementById("tabOpciones");
+  const panelHerramientas = document.getElementById("panelHerramientas");
+  const panelOpciones = document.getElementById("panelOpciones");
+  const contenidoOpciones = document.getElementById("contenidoOpciones");
+  const mensajeOpciones = document.getElementById("mensajeOpciones");
+
+  let elementoSeleccionado = null;
+
+  if (
+    tabHerramientas &&
+    tabOpciones &&
+    panelHerramientas &&
+    panelOpciones &&
+    contenidoOpciones
+  ) {
+    function mostrarPestana(nombre) {
+      const verHerramientas = nombre === "herramientas";
+
+      panelHerramientas.hidden = !verHerramientas;
+      panelOpciones.hidden = verHerramientas;
+
+      tabHerramientas.classList.toggle("btn-pestana-activa", verHerramientas);
+      tabHerramientas.classList.toggle("text-white", verHerramientas);
+      tabHerramientas.classList.toggle("text-dark", !verHerramientas);
+      tabHerramientas.classList.toggle("fw-bold", verHerramientas);
+      tabHerramientas.classList.toggle("bg-secondary-subtle", !verHerramientas);
+
+      tabOpciones.classList.toggle("btn-pestana-activa", !verHerramientas);
+      tabOpciones.classList.toggle("text-white", !verHerramientas);
+      tabOpciones.classList.toggle("text-dark", verHerramientas);
+      tabOpciones.classList.toggle("fw-bold", !verHerramientas);
+      tabOpciones.classList.toggle("bg-secondary-subtle", verHerramientas);
+    }
+
+    tabHerramientas.addEventListener("click", () => mostrarPestana("herramientas"));
+    tabOpciones.addEventListener("click", () => mostrarPestana("opciones"));
+
+    function escaparHTML(valor) {
+      return String(valor ?? "").replace(/[&<>"']/g, (caracter) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[caracter]);
+    }
+
+    function normalizarColor(color, respaldo = "#212529") {
+      if (!color) return respaldo;
+
+      const colorLimpio = String(color).trim();
+
+      const rgb = colorLimpio.match(
+        /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i
+      );
+
+      if (rgb) {
+        return (
+          "#" +
+          rgb
+            .slice(1, 4)
+            .map((valor) => Number(valor).toString(16).padStart(2, "0"))
+            .join("")
+        );
+      }
+
+      if (/^#[0-9a-f]{6}$/i.test(colorLimpio)) {
+        return colorLimpio;
+      }
+
+      if (/^#[0-9a-f]{3}$/i.test(colorLimpio)) {
+        return (
+          "#" +
+          colorLimpio
+            .slice(1)
+            .split("")
+            .map((letra) => letra + letra)
+            .join("")
+        );
+      }
+
+      return respaldo;
+    }
+
+    function obtenerContenido(wrapper, tipo) {
+      if (tipo === "titulo") return wrapper.querySelector("h2");
+      if (tipo === "texto") return wrapper.querySelector("p");
+      if (tipo === "submit") return wrapper.querySelector('button[type="submit"]');
+      if (tipo === "grid_dinamico") {
+        return wrapper.querySelector(".panel-grid-config");
+      }
+
+      return wrapper.querySelector(".form-label");
+    }
+
+    // determina que elemento debe resibir los cambios de apariencia
+    function obtenerElementoApariencia(wrapper, tipo) {
+      if (tipo === "titulo") return wrapper.querySelector("h2");
+      if (tipo === "texto") return wrapper.querySelector("p");
+      if (tipo === "submit") {
+        return wrapper.querySelector('button[type="submit"]');
+      }
+      if (tipo === "input") {
+        return wrapper.querySelector("input:not([type='radio'])");
+      }
+      if (tipo === "textarea") {
+        return wrapper.querySelector("textarea");
+      }
+      if (tipo === "select") {
+        return wrapper.querySelector("select");
+      }
+      if (tipo === "radio") {
+        return wrapper.querySelector(".form-check-label");
+      }
+      if (tipo === "file") {
+        return wrapper.querySelector('input[type="file"]');
+      }
+
+      return obtenerContenido(wrapper, tipo);
+    }
+
+    function crearCampo(etiqueta, propiedad, valor, tipo = "text", extra = "") {
+      return `
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">${etiqueta}</label>
+          <input class="form-control form-control-sm" type="${tipo}"
+            data-prop="${propiedad}" value="${escaparHTML(valor)}" ${extra}>
+        </div>`;
+    }
+
+    function crearCasilla(etiqueta, propiedad, marcada) {
+      return `
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox"
+            id="opcion-${propiedad}" data-prop="${propiedad}"
+            ${marcada ? "checked" : ""}>
+          <label class="form-check-label small" for="opcion-${propiedad}">
+            ${etiqueta}
+          </label>
+        </div>`;
+    }
+
+    function crearSelect(etiqueta, propiedad, opciones, seleccionado) {
+      return `
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">${etiqueta}</label>
+          <select class="form-select form-select-sm" data-prop="${propiedad}">
+            ${opciones.map((opcion) => `
+              <option value="${opcion.valor}"
+                ${opcion.valor === seleccionado ? "selected" : ""}>
+                ${opcion.texto}
+              </option>`).join("")}
+          </select>
+        </div>`;
+    }
+
+    function obtenerEtiqueta(wrapper) {
+      return wrapper.querySelector(".form-label");
+    }
+
+    function obtenerCampo(wrapper) {
+      return wrapper.querySelector(
+        "input:not([type='radio']), textarea, select"
+      );
+    }
+
+    function obtenerOpciones(wrapper, tipo) {
+      if (tipo === "select") {
+        return Array.from(wrapper.querySelectorAll("select option"))
+          .map((opcion) => opcion.textContent.trim())
+          .join("\n");
+      }
+
+      if (tipo === "radio") {
+        return Array.from(wrapper.querySelectorAll(".form-check-label"))
+          .map((etiqueta) => etiqueta.textContent.trim())
+          .join("\n");
+      }
+
+      return "";
+    }
+
+    function renderizarOpciones(wrapper, tipo) {
+      elementoSeleccionado = wrapper;
+      contenidoOpciones.innerHTML = "";
+
+      if (!wrapper) {
+        mensajeOpciones.hidden = false;
+        mensajeOpciones.textContent =
+          "Selecciona un elemento del formulario para configurar sus propiedades.";
+        return;
+      }
+
+      mensajeOpciones.hidden = true;
+
+      const contenido = obtenerContenido(wrapper, tipo);
+      const etiqueta = obtenerEtiqueta(wrapper);
+      const campo = obtenerCampo(wrapper);
+      const elementoApariencia = obtenerElementoApariencia(wrapper, tipo);
+
+      let html = `
+        <p class="small text-secondary">
+          Tipo de elemento: <strong>${escaparHTML(tipo)}</strong>
+        </p>`;
+
+      if (tipo === "titulo" || tipo === "texto") {
+        html += crearCampo(
+          "Texto",
+          "texto",
+          contenido?.innerText.trim() || ""
+        );
+      }
+
+      if (
+        etiqueta &&
+        !["titulo", "texto", "submit", "grid_dinamico"].includes(tipo)
+      ) {
+        html += crearCampo(
+          "Etiqueta",
+          "etiqueta",
+          etiqueta.innerText.trim()
+        );
+      }
+
+      if (tipo === "input") {
+        const input = wrapper.querySelector("input:not([type='radio'])");
+
+        html += crearSelect("Tipo de campo", "tipoCampo", [
+          { valor: "text", texto: "Texto" },
+          { valor: "email", texto: "Correo electrónico" },
+          { valor: "number", texto: "Número" },
+          { valor: "tel", texto: "Teléfono" },
+          { valor: "date", texto: "Fecha" },
+          { valor: "password", texto: "Contraseña" },
+        ], input?.type || "text");
+
+        html += crearCampo(
+          "Texto de ejemplo",
+          "placeholder",
+          input?.placeholder || ""
+        );
+
+        html += crearCasilla(
+          "Campo obligatorio",
+          "obligatorio",
+          !!input?.required
+        );
+      }
+
+      if (tipo === "textarea") {
+        html += crearCampo(
+          "Texto de ejemplo",
+          "placeholder",
+          campo?.placeholder || ""
+        );
+
+        html += crearCampo(
+          "Número de filas",
+          "filas",
+          campo?.rows || 3,
+          "number",
+          'min="1" max="15"'
+        );
+
+        html += crearCasilla(
+          "Campo obligatorio",
+          "obligatorio",
+          !!campo?.required
+        );
+      }
+
+      if (tipo === "select" || tipo === "radio") {
+        html += `
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">
+              Opciones (una por línea)
+            </label>
+            <textarea class="form-control form-control-sm" rows="4"
+              data-prop="opciones">${escaparHTML(
+                obtenerOpciones(wrapper, tipo)
+              )}</textarea>
+          </div>`;
+
+        html += crearCasilla(
+          "Selección obligatoria",
+          "obligatorio",
+          !!wrapper.querySelector(
+            tipo === "select" ? "select" : 'input[type="radio"]'
+          )?.required
+        );
+      }
+
+      if (tipo === "file") {
+        const inputArchivo = wrapper.querySelector('input[type="file"]');
+
+        html += crearCampo(
+          "Tipos permitidos (ej. .pdf,.png)",
+          "accept",
+          inputArchivo?.accept || ""
+        );
+
+        html += crearCasilla(
+          "Archivo obligatorio",
+          "obligatorio",
+          !!inputArchivo?.required
+        );
+      }
+
+      if (tipo === "submit") {
+        html += crearCampo(
+          "Texto del botón",
+          "textoBoton",
+          contenido?.textContent.trim() || ""
+        );
+      }
+
+      if (tipo === "grid_dinamico") {
+        html += `
+          <p class="small text-secondary">
+            Puedes definir filas y columnas en el elemento y pulsar «Generar Grid».
+          </p>`;
+      }
+
+      // opciones de apariencia
+      html += `
+        <hr>
+        <h6 class="fw-bold mb-3">Apariencia</h6>`;
+
+      // la alineacion solo aparece para titulos y parrafos
+      if (tipo === "titulo" || tipo === "texto") {
+        html += crearSelect(
+          "Alineación",
+          "alineacion",
+          [
+            { valor: "left", texto: "Izquierda" },
+            { valor: "center", texto: "Centro" },
+            { valor: "right", texto: "Derecha" },
+          ],
+          contenido?.style.textAlign || "left"
+        );
+      }
+
+      // el tamano y color se aplican al elemento visual corespondiente
+      if (elementoApariencia) {
+        html += crearCampo(
+          "Tamaño de letra (px)",
+          "tamanoLetra",
+          parseInt(getComputedStyle(elementoApariencia).fontSize, 10) || 16,
+          "number",
+          'min="8" max="72"'
+        );
+
+        html += crearCampo(
+          "Color del texto",
+          "colorTexto",
+          normalizarColor(
+            getComputedStyle(elementoApariencia).color,
+            "#212529"
+          ),
+          "color"
+        );
+      }
+
+      contenidoOpciones.innerHTML = html;
+    }
+
+    function aplicarOpciones(propiedad, control) {
+      const wrapper = elementoSeleccionado;
+      if (!wrapper) return;
+
+      const tipo = wrapper.dataset.tipo;
+      const valor =
+        control.type === "checkbox" ? control.checked : control.value;
+
+      const contenido = obtenerContenido(wrapper, tipo);
+      const etiqueta = obtenerEtiqueta(wrapper);
+      const campo = obtenerCampo(wrapper);
+      const elementoApariencia = obtenerElementoApariencia(wrapper, tipo);
+
+      switch (propiedad) {
+        case "texto":
+          if (contenido) contenido.innerText = valor;
+          break;
+
+        case "etiqueta":
+          if (etiqueta) etiqueta.innerText = valor;
+          break;
+
+        case "placeholder":
+          if (campo) campo.placeholder = valor;
+          break;
+
+        case "tipoCampo": {
+          const input = wrapper.querySelector("input:not([type='radio'])");
+
+          if (
+            input &&
+            ["text", "email", "number", "tel", "date", "password"].includes(valor)
+          ) {
+            input.type = valor;
+          }
+          break;
+        }
+
+        case "filas":
+          if (campo) {
+            campo.rows = Math.min(15, Math.max(1, Number(valor) || 1));
+          }
+          break;
+
+        case "obligatorio":
+          if (tipo === "radio") {
+            wrapper.querySelectorAll('input[type="radio"]').forEach(
+              (radio, indice) => {
+                radio.required = valor && indice === 0;
+              }
+            );
+          } else if (campo) {
+            campo.required = valor;
+          }
+          break;
+
+        case "opciones": {
+          const lineas = valor
+            .split("\n")
+            .map((linea) => linea.trim())
+            .filter(Boolean);
+
+          if (tipo === "select") {
+            const select = wrapper.querySelector("select");
+
+            if (select) {
+              const valorAnterior = select.value;
+              select.innerHTML = "";
+
+              lineas.forEach((linea) => {
+                const option = document.createElement("option");
+                option.textContent = linea;
+                select.appendChild(option);
+              });
+
+              if (
+                Array.from(select.options).some(
+                  (opcion) => opcion.value === valorAnterior
+                )
+              ) {
+                select.value = valorAnterior;
+              }
+            }
+          }
+
+          if (tipo === "radio") {
+            const grupo = wrapper.querySelector(".form-check")?.parentElement;
+
+            if (grupo) {
+              const primerRadio = wrapper.querySelector('input[type="radio"]');
+              const esObligatorio = !!primerRadio?.required;
+
+              wrapper.querySelectorAll(".form-check").forEach((elemento) => {
+                elemento.remove();
+              });
+
+              lineas.forEach((linea, indice) => {
+                const div = document.createElement("div");
+                div.className = "form-check";
+
+                const radio = document.createElement("input");
+                radio.className = "form-check-input";
+                radio.type = "radio";
+                radio.name = wrapper.dataset.id;
+                radio.id = `${wrapper.dataset.id}_opcion_${indice}`;
+                radio.required = esObligatorio && indice === 0;
+
+                const label = document.createElement("label");
+                label.className = "form-check-label";
+                label.contentEditable = "true";
+                label.htmlFor = radio.id;
+                label.textContent = linea;
+
+                div.append(radio, label);
+                grupo.appendChild(div);
+              });
+            }
+          }
+          break;
+        }
+
+        case "accept": {
+          const archivo = wrapper.querySelector('input[type="file"]');
+          if (archivo) archivo.accept = valor;
+          break;
+        }
+
+        case "textoBoton":
+          if (contenido) contenido.textContent = valor;
+          break;
+
+        case "alineacion":
+          if (contenido && ["titulo", "texto"].includes(tipo)) {
+            contenido.style.setProperty("text-align", valor, "important");
+          }
+          break;
+
+        case "tamanoLetra":
+          if (elementoApariencia) {
+            const tamano = Math.min(72, Math.max(8, Number(valor) || 16));
+
+            elementoApariencia.style.setProperty(
+              "font-size",
+              `${tamano}px`,
+              "important"
+            );
+
+            // en los radios aplicar el tamano a todas las opciones
+            if (tipo === "radio") {
+              wrapper.querySelectorAll(".form-check-label").forEach((label) => {
+                label.style.setProperty("font-size", `${tamano}px`, "important");
+              });
+            }
+          }
+          break;
+
+        case "colorTexto":
+          if (elementoApariencia) {
+            elementoApariencia.style.setProperty("color", valor, "important");
+
+            // aplicar el color a todas las opciones del grupo de radios
+            if (tipo === "radio") {
+              wrapper.querySelectorAll(".form-check-label").forEach((label) => {
+                label.style.setProperty("color", valor, "important");
+              });
+            }
+          }
+          break;
+      }
+    }
+
+    contenidoOpciones.addEventListener("input", (e) => {
+      const control = e.target.closest("[data-prop]");
+      if (control) aplicarOpciones(control.dataset.prop, control);
+    });
+
+    contenidoOpciones.addEventListener("change", (e) => {
+      const control = e.target.closest("[data-prop]");
+      if (control) aplicarOpciones(control.dataset.prop, control);
+    });
+
+    document.addEventListener("elementoSeleccionado", (e) => {
+      const detalle = e.detail || {};
+      renderizarOpciones(detalle.wrapper, detalle.tipo);
+    });
+
+    mostrarPestana("herramientas");
+  }
+
+  // cargar los datos del json de fomularios predeteminados
   await cargarFormulariosJSON();
 
   // si estamos en la pagina de Formularios.html

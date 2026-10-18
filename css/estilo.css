@@ -168,9 +168,11 @@ button.btn-crear#btnC:active {
   background-color: rgba(181, 151, 208, 0.63);}
 
 /* Boton de la pestaña activa */
-.btn-pestana-activa {
-  background-color: #230836;
-  color: #ffffff;
+.btn-pestana-activa,
+.btn-pestana-activa:hover,
+.btn-pestana-activa:focus {
+  background-color: #230836 !important;
+  color: #ffffff !important;
 }
 
 /* Botones laterales de heramientas */
@@ -229,6 +231,40 @@ button.btn-crear#btnC:active {
   outline: 2px dashed #0d6efd;
   padding: 2px 4px;
   border-radius: 4px;
+}
+
+/* Panel de opciones del creador de fomularios */
+
+#panelOpciones[hidden] {
+  display: none !important;
+}
+
+#panelOpciones:not([hidden]) {
+  display: block;
+}
+
+#contenidoOpciones .form-label {
+  color: #230836;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+#contenidoOpciones .form-control,
+#contenidoOpciones .form-select {
+  border-radius: 8px;
+}
+
+#contenidoOpciones .grupo-opcion {
+  background-color: #ffffff;
+  border: 1px solid #ded5e8;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.elemento-form.seleccionado > div {
+  border: 2px solid #6f42c1 !important;
+  box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.12);
 }
 
 /*-------------------------------------------------------------PLANTILLAS---------------------------------------------------*/
