@@ -214,3 +214,18 @@ button.btn-crear#btnC:active {
   font-style: none;
   text-decoration: none;
 }
+.elemento-form {
+  transition: all 0.2s ease-in-out;
+  background-color: #fdfdfd;
+}
+
+.elemento-form:hover {
+  border-color: #0d6efd !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+[contenteditable="true"]:focus {
+  outline: 2px dashed #0d6efd;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
