@@ -793,9 +793,6 @@ function mostrarCodigoGuardado(id) {
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" id="btnDescargarGuardado" class="btn btn-success">
-              <i class="bi bi-download me-1"></i> Descargar .html
-            </button>
             <button type="button" id="btnCopiarCodigoGuardado" class="btn btn-primary">
               <i class="bi bi-clipboard me-1"></i> Copiar Código
             </button>
@@ -819,36 +816,11 @@ function mostrarCodigoGuardado(id) {
 
   document.getElementById("txtCodigoGuardado").value =
     construirCodigoFuente(form.html, form.estilo);
-  document.getElementById("btnDescargarGuardado").onclick = () =>
-    descargarFormularioHTML(id);
+ 
 
   bootstrap.Modal.getOrCreateInstance(modalEl).show();
 }
 
-// descargar el formulario como una pagina .html lista para abrir
-function descargarFormularioHTML(id) {
-  const form = obtenerGuardados().find((f) => f.id === id);
-  if (!form) return;
-
-  const pagina = `<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escaparTexto(form.nombre)}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-${construirCodigoFuente(form.html, form.estilo)}
-</body>
-</html>`;
-
-  const enlace = document.createElement("a");
-  enlace.href = URL.createObjectURL(new Blob([pagina], { type: "text/html" }));
-  enlace.download = (form.nombre.replace(/[^\w\-]+/g, "_") || "formulario") + ".html";
-  enlace.click();
-  URL.revokeObjectURL(enlace.href);
-}
 
 // vuelve a activar los eventos de un elemento que se cargo desde el HTML guardado
 function activarEventosElemento(wrapper) {
@@ -1285,7 +1257,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <label class="form-label small fw-semibold">Imagen de fondo</label>
             <input class="form-control form-control-sm" type="file"
               data-prop="imagenFondoForm" accept="image/*">
-            <button type="button" id="btnQuitarImagenFondo" class="btn btn-outline-danger btn-sm mt-2 w-100">
+            <button type="button" id="btnQuitarImagenFondo" class="btn btn-plantilla btn-sm mt-2 w-100">
               Quitar imagen de fondo
             </button>
           </div>`;

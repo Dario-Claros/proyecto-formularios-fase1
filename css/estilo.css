@@ -165,7 +165,7 @@ button.btn-crear#btnC:active {
 /*---------------------------------------------------------------------------------------------------------------------------*/
 
 #menuOpciones{
-  background-color: rgba(181, 151, 208, 0.63);}
+  background-color: rgba(56, 14, 97, 0.63);}
 
 /* Boton de la pestaña activa */
 .btn-pestana-activa,
@@ -196,7 +196,7 @@ button.btn-crear#btnC:active {
 }
 
 .diseño_form{
-  background-color: #B2B2B2;
+  background-color: rgba(244, 234, 254, 0.63);;
   width: 400px;
   height: 200px;
 }
@@ -235,6 +235,7 @@ button.btn-crear#btnC:active {
 
 /* Panel de opciones del creador de fomularios */
 
+
 #panelOpciones[hidden] {
   display: none !important;
 }
@@ -266,6 +267,7 @@ button.btn-crear#btnC:active {
   border: 2px solid #6f42c1 !important;
   box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.12);
 }
+
 
 /*-------------------------------------------------------------PLANTILLAS---------------------------------------------------*/
 /*---------------------------------------------------------------------------------------------------------------------------*/
