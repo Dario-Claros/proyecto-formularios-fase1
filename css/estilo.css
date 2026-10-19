@@ -308,7 +308,15 @@ button.btn-crear#btnC:active {
   border-radius: 10px;
   font-weight: 600;
 }
-
+#editando{
+  background-color: #2C0A3F !important;
+  color: #ffffff;
+  border-radius: 10px;
+  font-weight: 600;
+  height: 25px;
+  width: 200px;
+  text-align: center !important;
+}
 .btn-plantilla:hover {
   background-color: #4c1163;
   color: #ffffff;

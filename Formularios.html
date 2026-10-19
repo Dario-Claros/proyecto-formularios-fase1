@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <!-- Titulo de la pagina -->
+    <!-- Titulo de la pagina -->
     <title>Construcción de formularios</title>
 
     <!-- Enlaces de Disño y Iconos-->
@@ -41,15 +41,10 @@
               <a class="nav-link" href="index.html">Inicio</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="Desarrolladores.html"
-                >Desarrolladores</a
-              >
+              <a class="nav-link" href="Desarrolladores.html">Desarrolladores</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="Contactanos.html">Contáctanos</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="Configuracion.html">Configuración</a>
             </li>
             <li class="nav-item">
               <a class="nav-link active" href="Formularios.html">Formularios</a>
@@ -58,31 +53,44 @@
         </div>
       </div>
     </nav>
-    <!-- Contenido prinsipal de la pagina -->
 
+    <!-- Contenido principal de la pagina -->
     <section class="principal flex-grow-1">
       <div class="container-fluid my-5">
         <div class="row">
           <div class="col-10 offset-1">
-            <div>
+            
+            <!-- SECCIÓN 1: DISEÑOS MÁS RECIENTES (Predeterminados) -->
+            <div class="mb-5">
               <h2 class="fw-bold text-body-emphasis h4 mb-3">
                 Diseños más recientes
               </h2>
               <div id="contenedorFormularios" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                <div class="diseño_form"></div>
-                <div class="diseño_form"></div>
-                <div class="diseño_form"></div>
+                <!-- Aquí se cargan las plantillas predeterminadas -->
               </div>
               <div class="d-flex mt-4 justify-content-end">
                 <a href="#" id="verMas" class="fw-semibold">Ver más</a>
               </div>
-              <button class="add-forms"><a href="CrearForms.html"><i class="bi bi-plus-circle-fill me-1"></i>Crear Formulario</a></button>
+              <button class="add-forms">
+                <a href="CrearForms.html"><i class="bi bi-plus-circle-fill me-1"></i>Crear Formulario</a>
+              </button>
             </div>
+
+            <!-- SECCIÓN 2: MIS FORMULARIOS GUARDADOS LOCALMENTE -->
+            <div>
+              <h2 class="fw-bold text-body-emphasis h4 mb-3">
+                Mis Formularios Guardados
+              </h2>
+              <div id="contenedorFormulariosGuardados" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <!-- Aquí se inyectarán de forma dinámica los formularios creados por el usuario -->
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
 
-      <!-- Modal para mostar la vista previa de los fomularios -->
+      <!-- Modal para mostrar la vista previa de los formularios -->
       <div
         class="modal fade"
         id="modalVistaPrevia"

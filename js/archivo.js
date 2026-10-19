@@ -267,6 +267,7 @@ function verVistaPrevia(idFormulario) {
     construirFormularioHTML(encontrada);
 
   const botonUsar = document.getElementById("enlaceUsarPlantillaModal");
+  botonUsar.style.display = ""; // se vuelve a mostrar (los guardados lo ocultan)
   botonUsar.href = "CrearForms.html?plantilla=" + encontrada.id;
   botonUsar.onclick = function () {
     guardarPlantilla(encontrada.id);
@@ -434,10 +435,19 @@ function iniciarAreaTrabajo() {
   // leer el parametro plantilla de la url
   const parametros = new URLSearchParams(window.location.search);
   const idPlantilla = parametros.get("plantilla");
+  const idEditar = parametros.get("editar");
 
   if (idPlantilla) {
     window.plantillaActual = listaFormularios.find((f) => f.id === idPlantilla) || null;
   }
+
+  // aviso cuando se esta editando un formulario guardado
+  const guardadoEditar = idEditar
+    ? obtenerGuardados().find((f) => f.id === idEditar)
+    : null;
+  const avisoEdicion = guardadoEditar
+    ? `<span id="editando">Editando: ${escaparTexto(guardadoEditar.nombre)}</span>`
+    : "";
 
   // opciones del select para elejir plantilla
   let opcionesSelect = `<option value="">-- Seleccionar formulario predeterminado --</option>`;
@@ -450,7 +460,7 @@ function iniciarAreaTrabajo() {
   barraPlantillas.innerHTML = `
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 bg-secondary-subtle rounded-4 p-3">
       <div class="d-flex align-items-center gap-2">
-        <label for="selectorPlantilla" class="fw-bold small titulo-formulario mb-0">Plantilla predeterminada:</label>
+        ${avisoEdicion}<label for="selectorPlantilla" class="fw-bold small titulo-formulario mb-0">Plantilla predeterminada:</label>
         <select id="selectorPlantilla" class="form-select form-select-sm w-auto" onchange="cambiarPlantilla(this.value)">
           ${opcionesSelect}
         </select>
@@ -465,6 +475,8 @@ function iniciarAreaTrabajo() {
   if (window.plantillaActual) {
     cargarCamposEnLienzo(window.plantillaActual);
   }
+
+  if (idEditar) cargarGuardadoEnLienzo(idEditar);
 }
 
 // pintar los campos de la platilla dentro de #formGenerado
@@ -494,6 +506,7 @@ function cargarCamposEnLienzo(plantilla) {
 
 // cambiar de platilla desde el select en CrearForms
 function cambiarPlantilla(idFormulario) {
+  window.formularioEditandoId = null;
   window.plantillaActual = listaFormularios.find((f) => f.id === idFormulario) || null;
   if (window.plantillaActual) {
     localStorage.setItem("plantillaSeleccionada", JSON.stringify(window.plantillaActual));
@@ -506,10 +519,409 @@ function cambiarPlantilla(idFormulario) {
 // limpiar el fomulario cargado en el area de trabajo
 function limpiarAreaTrabajo() {
   window.plantillaActual = null;
+  window.formularioEditandoId = null;
   const selector = document.getElementById("selectorPlantilla");
   if (selector) selector.value = "";
   localStorage.removeItem("plantillaSeleccionada");
   cargarCamposEnLienzo(null);
+}
+
+// =========================================================
+// GUARDAR FORMULARIOS PERSONALIZADOS (localStorage)
+// =========================================================
+const CLAVE_GUARDADOS = "formulariosGuardados";
+
+function escaparTexto(valor) {
+  return String(valor ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[c]);
+}
+
+function obtenerGuardados() {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE_GUARDADOS)) || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+// devuelve el formulario del lienzo limpio (para codigo y vista previa) y la version editable
+function obtenerFormularioLimpio() {
+  const lienzo = document.getElementById("lienzoFormulario");
+  const formGenerado = document.getElementById("formGenerado");
+  if (!lienzo || !formGenerado) return null;
+
+  // version editable: tal cual esta en el lienzo (con controles y estilos), sin la seleccion actual
+  const clonEditable = formGenerado.cloneNode(true);
+  clonEditable.querySelectorAll(".seleccionado").forEach((el) => {
+    el.classList.remove("seleccionado");
+  });
+  const editable = clonEditable.innerHTML.trim();
+
+  // version limpia: sin controles de edicion ni atributos del constructor
+  const clon = lienzo.cloneNode(true);
+
+  const vacio = clon.querySelector("#mensajeVacio");
+  if (vacio) vacio.remove();
+
+  // quitar botones de ancho (100%, 50%, 33%) y el de eliminar
+  clon.querySelectorAll(
+    ".controles-elemento, .btn-group, [class*='toolbar'], button.btn-danger, .badge, .float-end"
+  ).forEach((el) => {
+    if (
+      el.classList.contains("controles-elemento") ||
+      el.textContent.includes("100%") ||
+      el.textContent.includes("50%") ||
+      el.textContent.includes("33%") ||
+      el.querySelector(".bi-x") ||
+      el.classList.contains("btn-danger")
+    ) {
+      el.remove();
+    }
+  });
+
+  clon.querySelectorAll("*").forEach((el) => {
+    el.removeAttribute("contenteditable");
+    el.removeAttribute("data-tipo");
+    el.removeAttribute("data-id");
+    el.removeAttribute("data-prop");
+    el.removeAttribute("draggable");
+    el.classList.remove(
+      "seleccionado",
+      "elemento-seleccionado",
+      "border-primary",
+      "border",
+      "position-relative"
+    );
+  });
+
+  const form = clon.querySelector("#formGenerado");
+  return {
+    html: form ? form.innerHTML.trim() : clon.innerHTML.trim(),
+    estilo: lienzo.style.cssText, // colores e imagen de fondo
+    editable: editable,
+  };
+}
+
+// codigo listo para pegar en un sitio web
+function construirCodigoFuente(html, estilo) {
+  // las comillas dobles del cssText (url("data:...")) romperian el atributo style
+  const estiloSeguro = (estilo || "").replace(/"/g, "'");
+
+  return `<!-- Asegúrate de incluir Bootstrap 5 en el <head> de tu sitio web -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+
+<div class="container my-5">
+  <div class="p-4 border rounded-4 shadow-sm" style="${estiloSeguro}">
+    <form action="#" method="POST" class="d-flex flex-column gap-3">
+      ${html}
+    </form>
+  </div>
+</div>`;
+}
+
+function guardarFormularioActual() {
+  const hayElementos = document.querySelector("#formGenerado .elemento-form");
+  if (!hayElementos) {
+    alert("Agrega al menos un elemento antes de guardar.");
+    return;
+  }
+
+  const guardados = obtenerGuardados();
+  const indice = window.formularioEditandoId
+    ? guardados.findIndex((f) => f.id === window.formularioEditandoId)
+    : -1;
+
+  // si se esta editando uno guardado, se pregunta si se actualiza o se crea una copia
+  let actualizar = false;
+  if (indice !== -1) {
+    actualizar = confirm(
+      "Estás editando «" + guardados[indice].nombre + "».\n\n" +
+      "Aceptar = actualizar este formulario\n" +
+      "Cancelar = guardar como uno nuevo"
+    );
+  }
+
+  const sugerido = actualizar
+    ? guardados[indice].nombre
+    : document.querySelector("#formGenerado h2")?.innerText.trim() || "Mi formulario";
+  const nombre = prompt("Nombre del formulario:", sugerido);
+  if (nombre === null) return; // cancelo
+
+  const limpio = obtenerFormularioLimpio();
+  const datos = {
+    nombre: nombre.trim() || "Formulario sin nombre",
+    fecha: new Date().toLocaleDateString("es-SV"),
+    html: limpio.html,
+    estilo: limpio.estilo,
+    editable: limpio.editable,
+  };
+
+  let idGuardado;
+  if (actualizar) {
+    idGuardado = guardados[indice].id;
+    guardados[indice] = { ...guardados[indice], ...datos };
+  } else {
+    idGuardado = "guardado_" + Date.now();
+    guardados.unshift({ id: idGuardado, ...datos });
+  }
+
+  try {
+    localStorage.setItem(CLAVE_GUARDADOS, JSON.stringify(guardados));
+    window.formularioEditandoId = idGuardado;
+    alert("Formulario guardado. Lo puedes ver en la página Formularios.");
+  } catch (error) {
+    // pasa si la imagen de fondo es muy pesada (limite ~5MB)
+    alert("No se pudo guardar. Prueba con una imagen de fondo más liviana.");
+  }
+}
+
+// pintar las tarjetas en Formularios.html
+function mostrarFormulariosGuardados() {
+  const contenedor = document.getElementById("contenedorFormulariosGuardados");
+  if (!contenedor) return;
+
+  const guardados = obtenerGuardados();
+
+  if (guardados.length === 0) {
+    contenedor.innerHTML = `
+      <div class="col-12">
+        <p class="text-secondary mb-0">Aún no has guardado formularios.</p>
+      </div>`;
+    return;
+  }
+
+  contenedor.innerHTML = guardados
+    .map(
+      (form) => `
+      <div class="col">
+        <div class="card h-100 tarjeta-plantilla shadow-sm">
+          <div class="card-body d-flex flex-column p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="icono-plantilla"><i class="bi bi-file-earmark-text"></i></div>
+              <div>
+                <h5 class="fw-bold mb-1 titulo-formulario">${escaparTexto(form.nombre)}</h5>
+                <span class="badge etiqueta-categoria">Personalizado</span>
+              </div>
+            </div>
+            <p class="text-secondary small flex-grow-1">Guardado el ${escaparTexto(form.fecha)}</p>
+            <div class="d-flex flex-wrap gap-2 mt-auto">
+              <button type="button" class="btn btn-sm flex-fill btn-plantilla-borde"
+                onclick="verVistaPreviaGuardado('${form.id}')">
+                <i class="bi bi-eye me-1"></i>Vista previa
+              </button>
+              <button type="button" class="btn btn-sm flex-fill btn-plantilla-borde"
+                onclick="mostrarCodigoGuardado('${form.id}')">
+                <i class="bi bi-code-slash me-1"></i>Código
+              </button>
+              <a href="CrearForms.html?editar=${form.id}" class="btn btn-sm flex-fill btn-plantilla">
+                <i class="bi bi-pencil-square me-1"></i>Editar
+              </a>
+              <button type="button" class="btn btn-sm btn-outline-danger"
+                onclick="eliminarGuardado('${form.id}')" title="Eliminar">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>`
+    )
+    .join("");
+}
+
+function verVistaPreviaGuardado(id) {
+  const form = obtenerGuardados().find((f) => f.id === id);
+  if (!form) return;
+
+  document.getElementById("tituloModalPrevia").textContent =
+    "Vista previa: " + form.nombre;
+
+  // se arma con DOM (no con string) para no romper el style si trae url("data:...")
+  const caja = document.createElement("div");
+  caja.className = "p-4 border rounded-4";
+  caja.style.cssText = form.estilo;
+  caja.innerHTML = `<form class="d-flex flex-column gap-3"
+    onsubmit="event.preventDefault(); alert('Formulario enviado correctamente');">${form.html}</form>`;
+
+  const cuerpo = document.getElementById("cuerpoModalPrevia");
+  cuerpo.innerHTML = "";
+  cuerpo.appendChild(caja);
+
+  // este formulario no es una plantilla, se oculta "Usar esta plantilla"
+  document.getElementById("enlaceUsarPlantillaModal").style.display = "none";
+
+  new bootstrap.Modal(document.getElementById("modalVistaPrevia")).show();
+}
+
+function eliminarGuardado(id) {
+  if (!confirm("¿Eliminar este formulario guardado?")) return;
+  const restantes = obtenerGuardados().filter((f) => f.id !== id);
+  localStorage.setItem(CLAVE_GUARDADOS, JSON.stringify(restantes));
+  mostrarFormulariosGuardados();
+}
+
+// ver y copiar el codigo de un formulario guardado
+function mostrarCodigoGuardado(id) {
+  const form = obtenerGuardados().find((f) => f.id === id);
+  if (!form) return;
+
+  let modalEl = document.getElementById("modalCodigoGuardado");
+
+  // el modal se crea solo la primera vez (Formularios.html no lo trae)
+  if (!modalEl) {
+    modalEl = document.createElement("div");
+    modalEl.className = "modal fade";
+    modalEl.id = "modalCodigoGuardado";
+    modalEl.tabIndex = -1;
+    modalEl.setAttribute("aria-hidden", "true");
+    modalEl.innerHTML = `
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Código Fuente de tu Formulario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <p class="small text-secondary mb-2">
+              Copia este código y pégalo en tu sitio web. Necesitas Bootstrap 5 en tu página.
+            </p>
+            <textarea id="txtCodigoGuardado" class="form-control font-monospace bg-light" rows="12" readonly></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" id="btnDescargarGuardado" class="btn btn-success">
+              <i class="bi bi-download me-1"></i> Descargar .html
+            </button>
+            <button type="button" id="btnCopiarCodigoGuardado" class="btn btn-primary">
+              <i class="bi bi-clipboard me-1"></i> Copiar Código
+            </button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(modalEl);
+
+    const btnCopiar = document.getElementById("btnCopiarCodigoGuardado");
+    btnCopiar.addEventListener("click", () => {
+      const txt = document.getElementById("txtCodigoGuardado");
+      txt.select();
+      navigator.clipboard.writeText(txt.value).then(() => {
+        btnCopiar.innerHTML = `<i class="bi bi-check-lg me-1"></i> ¡Copiado!`;
+        setTimeout(() => {
+          btnCopiar.innerHTML = `<i class="bi bi-clipboard me-1"></i> Copiar Código`;
+        }, 2000);
+      });
+    });
+  }
+
+  document.getElementById("txtCodigoGuardado").value =
+    construirCodigoFuente(form.html, form.estilo);
+  document.getElementById("btnDescargarGuardado").onclick = () =>
+    descargarFormularioHTML(id);
+
+  bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+
+// descargar el formulario como una pagina .html lista para abrir
+function descargarFormularioHTML(id) {
+  const form = obtenerGuardados().find((f) => f.id === id);
+  if (!form) return;
+
+  const pagina = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escaparTexto(form.nombre)}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+${construirCodigoFuente(form.html, form.estilo)}
+</body>
+</html>`;
+
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(new Blob([pagina], { type: "text/html" }));
+  enlace.download = (form.nombre.replace(/[^\w\-]+/g, "_") || "formulario") + ".html";
+  enlace.click();
+  URL.revokeObjectURL(enlace.href);
+}
+
+// vuelve a activar los eventos de un elemento que se cargo desde el HTML guardado
+function activarEventosElemento(wrapper) {
+  const formGenerado = document.getElementById("formGenerado");
+  const mensajeVacio = document.getElementById("mensajeVacio");
+
+  // selecionar el elemento al hacer clic para mostrar sus opciones
+  wrapper.addEventListener("click", (e) => {
+    if (e.target.closest(".controles-elemento")) return;
+    seleccionarElementoDePlantilla(wrapper);
+  });
+
+  // cambiar el ancho
+  wrapper.querySelectorAll(".btn-ancho").forEach((boton) => {
+    boton.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      wrapper.classList.remove("col-12", "col-md-6", "col-md-4");
+      wrapper.classList.add(boton.dataset.col);
+
+      wrapper.querySelectorAll(".btn-ancho").forEach((b) => {
+        b.classList.remove("active", "btn-secondary");
+        b.classList.add("btn-outline-secondary");
+      });
+      boton.classList.add("active", "btn-secondary");
+      boton.classList.remove("btn-outline-secondary");
+      seleccionarElementoDePlantilla(wrapper);
+    });
+  });
+
+  // eliminar
+  const btnEliminar = wrapper.querySelector(".btn-eliminar");
+  if (btnEliminar) {
+    btnEliminar.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      const estabaSeleccionado = wrapper.classList.contains("seleccionado");
+      wrapper.remove();
+
+      if (formGenerado.children.length === 0 && mensajeVacio) {
+        mensajeVacio.style.display = "block";
+      }
+      if (estabaSeleccionado) seleccionarElementoDePlantilla(null);
+    });
+  }
+}
+
+// cargar un formulario guardado en el lienzo para editarlo (CrearForms.html?editar=ID)
+function cargarGuardadoEnLienzo(id) {
+  const form = obtenerGuardados().find((f) => f.id === id);
+  const lienzo = document.getElementById("lienzoFormulario");
+  const formGenerado = document.getElementById("formGenerado");
+  const mensajeVacio = document.getElementById("mensajeVacio");
+  if (!form || !lienzo || !formGenerado) return;
+
+  if (!form.editable) {
+    alert(
+      "Este formulario se guardó con una versión anterior y no se puede editar. " +
+      "Créalo de nuevo y guárdalo otra vez."
+    );
+    return;
+  }
+
+  window.formularioEditandoId = id;
+
+  lienzo.style.cssText = form.estilo || "";
+  formGenerado.innerHTML = form.editable;
+  if (mensajeVacio) mensajeVacio.style.display = "none";
+
+  formGenerado.querySelectorAll(".elemento-form").forEach(activarEventosElemento);
+
+  const primero = formGenerado.querySelector(".elemento-form");
+  if (primero) seleccionarElementoDePlantilla(primero);
 }
 
 // =========================================================
@@ -610,6 +1022,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (tipo === "grid_dinamico") {
         return wrapper.querySelector(".panel-grid-config");
       }
+      if (tipo === "configuracion_tema") return wrapper.querySelector("#formGenerado");
 
       return wrapper.querySelector(".form-label");
     }
@@ -734,7 +1147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (
         etiqueta &&
-        !["titulo", "texto", "submit", "grid_dinamico"].includes(tipo)
+        !["titulo", "texto", "submit", "grid_dinamico", "configuracion_tema"].includes(tipo)
       ) {
         html += crearCampo(
           "Etiqueta",
@@ -842,47 +1255,93 @@ document.addEventListener("DOMContentLoaded", async () => {
           </p>`;
       }
 
-      // opciones de apariencia
-      html += `
-        <hr>
-        <h6 class="fw-bold mb-3">Apariencia</h6>`;
+      // CONFIGURACIÓN PERSONALIZADA DEL TEMA (COLORES E IMAGEN DE FONDO)
+      if (tipo === "configuracion_tema") {
+        html += `
+          <p class="small text-secondary">
+            Personaliza los colores y la imagen de fondo del formulario a tu gusto.
+          </p>`;
 
-      // la alineacion solo aparece para titulos y parrafos
-      if (tipo === "titulo" || tipo === "texto") {
-        html += crearSelect(
-          "Alineación",
-          "alineacion",
-          [
-            { valor: "left", texto: "Izquierda" },
-            { valor: "center", texto: "Centro" },
-            { valor: "right", texto: "Derecha" },
-          ],
-          contenido?.style.textAlign || "left"
-        );
-      }
-
-      // el tamano y color se aplican al elemento visual corespondiente
-      if (elementoApariencia) {
-        html += crearCampo(
-          "Tamaño de letra (px)",
-          "tamanoLetra",
-          parseInt(getComputedStyle(elementoApariencia).fontSize, 10) || 16,
-          "number",
-          'min="8" max="72"'
-        );
+        const lienzoActual = document.getElementById("lienzoFormulario");
+        const colorFondoActual = normalizarColor(getComputedStyle(lienzoActual).backgroundColor, "#ffffff");
+        const colorTextoActual = normalizarColor(getComputedStyle(lienzoActual).color, "#212529");
 
         html += crearCampo(
-          "Color del texto",
-          "colorTexto",
-          normalizarColor(
-            getComputedStyle(elementoApariencia).color,
-            "#212529"
-          ),
+          "Color de fondo del formulario",
+          "colorFondoForm",
+          colorFondoActual,
           "color"
         );
+
+        html += crearCampo(
+          "Color del texto general",
+          "colorTextoForm",
+          colorTextoActual,
+          "color"
+        );
+
+        html += `
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Imagen de fondo</label>
+            <input class="form-control form-control-sm" type="file"
+              data-prop="imagenFondoForm" accept="image/*">
+            <button type="button" id="btnQuitarImagenFondo" class="btn btn-outline-danger btn-sm mt-2 w-100">
+              Quitar imagen de fondo
+            </button>
+          </div>`;
+      }
+
+      // opciones de apariencia (no aplican para la configuracion de tema)
+      if (tipo !== "configuracion_tema") {
+        html += `
+          <hr>
+          <h6 class="fw-bold mb-3">Apariencia</h6>`;
+
+        if (tipo === "titulo" || tipo === "texto") {
+          html += crearSelect(
+            "Alineación",
+            "alineacion",
+            [
+              { valor: "left", texto: "Izquierda" },
+              { valor: "center", texto: "Centro" },
+              { valor: "right", texto: "Derecha" },
+            ],
+            contenido?.style.textAlign || "left"
+          );
+        }
+
+        if (elementoApariencia) {
+          html += crearCampo(
+            "Tamaño de letra (px)",
+            "tamanoLetra",
+            parseInt(getComputedStyle(elementoApariencia).fontSize, 10) || 16,
+            "number",
+            'min="8" max="72"'
+          );
+
+          html += crearCampo(
+            "Color del texto",
+            "colorTexto",
+            normalizarColor(
+              getComputedStyle(elementoApariencia).color,
+              "#212529"
+            ),
+            "color"
+          );
+        }
       }
 
       contenidoOpciones.innerHTML = html;
+
+      const btnQuitarImg = document.getElementById("btnQuitarImagenFondo");
+      if (btnQuitarImg) {
+        btnQuitarImg.addEventListener("click", () => {
+          const lienzo = document.getElementById("lienzoFormulario");
+          if (lienzo) {
+            lienzo.style.backgroundImage = "none";
+          }
+        });
+      }
     }
 
     function aplicarOpciones(propiedad, control) {
@@ -1016,6 +1475,42 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (contenido) contenido.textContent = valor;
           break;
 
+        case "colorFondoForm": {
+          const lienzo = document.getElementById("lienzoFormulario");
+          if (lienzo) {
+            lienzo.style.setProperty("background-color", valor, "important");
+          }
+          break;
+        }
+
+        case "colorTextoForm": {
+          const lienzo = document.getElementById("lienzoFormulario");
+          if (lienzo) {
+            lienzo.style.setProperty("color", valor, "important");
+            lienzo.querySelectorAll(".form-label, h3, p").forEach(el => {
+              el.style.setProperty("color", valor, "important");
+            });
+          }
+          break;
+        }
+
+        case "imagenFondoForm": {
+          const lienzo = document.getElementById("lienzoFormulario");
+          const archivo = control.files ? control.files[0] : null;
+
+          if (lienzo && archivo) {
+            const lector = new FileReader();
+            lector.onload = function (e) {
+              lienzo.style.backgroundImage = `url('${e.target.result}')`;
+              lienzo.style.backgroundSize = "cover";
+              lienzo.style.backgroundPosition = "center";
+              lienzo.style.backgroundRepeat = "no-repeat";
+            };
+            lector.readAsDataURL(archivo);
+          }
+          break;
+        }
+
         case "alineacion":
           if (contenido && ["titulo", "texto"].includes(tipo)) {
             contenido.style.setProperty("text-align", valor, "important");
@@ -1032,7 +1527,6 @@ document.addEventListener("DOMContentLoaded", async () => {
               "important"
             );
 
-            // en los radios aplicar el tamano a todas las opciones
             if (tipo === "radio") {
               wrapper.querySelectorAll(".form-check-label").forEach((label) => {
                 label.style.setProperty("font-size", `${tamano}px`, "important");
@@ -1045,7 +1539,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (elementoApariencia) {
             elementoApariencia.style.setProperty("color", valor, "important");
 
-            // aplicar el color a todas las opciones del grupo de radios
             if (tipo === "radio") {
               wrapper.querySelectorAll(".form-check-label").forEach((label) => {
                 label.style.setProperty("color", valor, "important");
@@ -1071,13 +1564,70 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderizarOpciones(detalle.wrapper, detalle.tipo);
     });
 
+    const btnConfigTema = document.querySelector('[data-type="configuracion_tema"]');
+    if (btnConfigTema) {
+      btnConfigTema.addEventListener("click", () => {
+        const wrapperSimulado = {
+          dataset: { tipo: "configuracion_tema" },
+          querySelector: () => null
+        };
+        renderizarOpciones(wrapperSimulado, "configuracion_tema");
+        mostrarPestana("opciones");
+      });
+    }
+
     mostrarPestana("herramientas");
   }
 
-  // cargar los datos del json de fomularios predeteminados
+ // =========================================================
+  // GENERADOR Y EXPORTADOR DE CÓDIGO FUENTE LIMPIO (SIN EDICIÓN)
+  // =========================================================
+  const btnGenerarCodigo = document.getElementById("btnGenerarCodigo");
+  const txtCodigoFuente = document.getElementById("txtCodigoFuente");
+  const btnCopiarCodigo = document.getElementById("btnCopiarCodigo");
+
+  if (btnGenerarCodigo && txtCodigoFuente) {
+    btnGenerarCodigo.addEventListener("click", () => {
+      const lienzo = document.getElementById("lienzoFormulario");
+
+      if (!lienzo) return;
+
+      const limpio = obtenerFormularioLimpio();
+      if (!limpio) return;
+
+      txtCodigoFuente.value = construirCodigoFuente(limpio.html, limpio.estilo);
+
+      const modalElement = document.getElementById("modalCodigo");
+      if (modalElement) {
+        const modalBootstrap = new bootstrap.Modal(modalElement);
+        modalBootstrap.show();
+      }
+    });
+  }
+
+  if (btnCopiarCodigo && txtCodigoFuente) {
+    btnCopiarCodigo.addEventListener("click", () => {
+      txtCodigoFuente.select();
+      navigator.clipboard.writeText(txtCodigoFuente.value).then(() => {
+        btnCopiarCodigo.innerHTML = `<i class="bi bi-check-lg me-1"></i> ¡Copiado!`;
+        setTimeout(() => {
+          btnCopiarCodigo.innerHTML = `<i class="bi bi-clipboard me-1"></i> Copiar Código`;
+        }, 2000);
+      });
+    });
+  }
+
+  // boton de guardar en CrearForms.html
+  const btnGuardarLocal = document.getElementById("btnGuardarLocal");
+  if (btnGuardarLocal) {
+    btnGuardarLocal.addEventListener("click", guardarFormularioActual);
+  }
+
+  // mostrar los formularios guardados en Formularios.html
+  mostrarFormulariosGuardados();
+
   await cargarFormulariosJSON();
 
-  // si estamos en la pagina de Formularios.html
   if (document.getElementById("contenedorFormularios")) {
     mostrarTarjetasFormularios();
 
@@ -1092,7 +1642,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // si estamos en la pagina de CrearForms.html
   if (document.getElementById("barraPlantillas")) {
     iniciarAreaTrabajo();
   }
